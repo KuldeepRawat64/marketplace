@@ -1,6 +1,6 @@
+import 'package:demo/pages/notes_page.dart';
 import 'package:demo/provider/google_sign_in.dart';
 import 'package:demo/widgets/background_painter.dart';
-import 'package:demo/widgets/logged_in_widget.dart';
 import 'package:demo/widgets/sign_up_widget.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -17,7 +17,7 @@ class HomePage extends StatelessWidget {
             if (provider.isSigningIn) {
               return buildLoading();
             } else if (snapshot.hasData) {
-              return LoggedInWidget();
+              return NotesPage();
             } else {
               return SignUpWidget();
             }

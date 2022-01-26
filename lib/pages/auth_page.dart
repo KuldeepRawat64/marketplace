@@ -1,4 +1,5 @@
 import 'package:demo/provider/email_sign_in.dart';
+import 'package:demo/services/helper_functions.dart';
 import 'package:demo/widgets/background_painter.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -11,6 +12,38 @@ class AuthPage extends StatefulWidget {
 class _AuthPageState extends State<AuthPage> {
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
+  HelperFunctions helperFunctions = HelperFunctions();
+  TextEditingController userNameController = TextEditingController();
+  TextEditingController userEmailController = TextEditingController();
+  String name = '';
+  String email = '';
+  DateTime dateTime = DateTime.now();
+
+  @override
+  void initState() {
+    getUserInfo();
+    super.initState();
+  }
+
+  getUserInfo() async {
+    email = await helperFunctions.getUserEmail() ?? '';
+    name = await helperFunctions.getUserName() ?? '';
+    DateTime dateTimenew =
+        await helperFunctions.getBirthday() ?? DateTime.now();
+    setState(() {
+      userEmailController = new TextEditingController(text: email);
+      userNameController = new TextEditingController(text: name);
+      dateTime = dateTimenew;
+    });
+    print("Name : $name \n Email : $email \n DateTime : $dateTime");
+  }
+
+  @override
+  void dispose() {
+    userEmailController.dispose();
+    userNameController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -69,19 +102,21 @@ class _AuthPageState extends State<AuthPage> {
           ),
           ListTile(
             leading: Icon(Icons.calendar_today),
-            title: Text(
-                '${dateOfBirth.year} - ${dateOfBirth.month}- ${dateOfBirth.day}'),
+            title:
+                Text('${dateTime.year} - ${dateTime.month}- ${dateTime.day}'),
             trailing: Icon(Icons.keyboard_arrow_down),
             onTap: () async {
               final date = await showDatePicker(
+                currentDate: dateTime,
                 context: context,
                 firstDate: DateTime(DateTime.now().year - 80),
                 lastDate: DateTime(DateTime.now().year + 1),
-                initialDate: dateOfBirth,
+                initialDate: dateTime,
               );
 
               if (date != null) {
                 provider.dateOfBirth = date;
+                dateTime = date;
               }
             },
           ),
@@ -95,6 +130,7 @@ class _AuthPageState extends State<AuthPage> {
     final provider = Provider.of<EmailSignInProvider>(context);
 
     return TextFormField(
+      controller: userNameController,
       key: ValueKey('username'),
       autocorrect: true,
       textCapitalization: TextCapitalization.words,
@@ -107,7 +143,9 @@ class _AuthPageState extends State<AuthPage> {
         }
       },
       decoration: InputDecoration(labelText: 'Username'),
-      onSaved: (username) => provider.userName = username!,
+      onSaved: (username) {
+        provider.userName = username!;
+      },
     );
   }
 
@@ -155,6 +193,7 @@ class _AuthPageState extends State<AuthPage> {
     final provider = Provider.of<EmailSignInProvider>(context);
 
     return TextFormField(
+      controller: userEmailController,
       key: ValueKey('email'),
       autocorrect: false,
       textCapitalization: TextCapitalization.none,
@@ -171,7 +210,9 @@ class _AuthPageState extends State<AuthPage> {
       },
       keyboardType: TextInputType.emailAddress,
       decoration: InputDecoration(labelText: 'Email address'),
-      onSaved: (email) => provider.userEmail = email!,
+      onSaved: (email) {
+        provider.userEmail = email!;
+      },
     );
   }
 
@@ -203,6 +244,9 @@ class _AuthPageState extends State<AuthPage> {
       _formKey.currentState!.save();
 
       final isSuccess = await provider.login();
+      helperFunctions.setUserName(userNameController.text);
+      helperFunctions.setEmail(userEmailController.text);
+      helperFunctions.setBirthday(dateTime);
 
       if (isSuccess) {
         Navigator.of(context).pop();
