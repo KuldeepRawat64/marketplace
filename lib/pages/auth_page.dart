@@ -1,5 +1,5 @@
 import 'package:demo/provider/email_sign_in.dart';
-import 'package:demo/services/helper_functions.dart';
+import 'package:demo/utils/helper_functions.dart';
 import 'package:demo/widgets/background_painter.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
