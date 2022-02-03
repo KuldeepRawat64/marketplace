@@ -1,9 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:demo/model/note.dart';
 
 class NotesDatabase {
   static final NotesDatabase instance = NotesDatabase._init();
+  final user = FirebaseAuth.instance.currentUser;
 
   static Database? _database;
 
@@ -20,7 +22,14 @@ class NotesDatabase {
     final dbPath = await getDatabasesPath();
     final path = join(dbPath, filePath);
 
-    return await openDatabase(path, version: 1, onCreate: _createDB);
+    return await openDatabase(
+      path,
+      version: 1,
+      // onCreate: _createDB,
+      onUpgrade: (db, oldVersion, newVersion) {
+        _createDB(db, newVersion);
+      },
+    );
   }
 
   Future _createDB(Database db, int version) async {
@@ -28,10 +37,12 @@ class NotesDatabase {
     final textType = 'TEXT NOT NULL';
     final boolType = 'BOOLEAN NOT NULL';
     final integerType = 'INTEGER NOT NULL';
+    final userId = user!.email!.split("@").first;
 
     await db.execute('''
 CREATE TABLE $tableNotes ( 
   ${NoteFields.id} $idType, 
+  ${NoteFields.userId} $userId,
   ${NoteFields.isImportant} $boolType,
   ${NoteFields.number} $integerType,
   ${NoteFields.title} $textType,
@@ -77,6 +88,7 @@ CREATE TABLE $tableNotes (
     final db = await instance.database;
 
     final orderBy = '${NoteFields.time} ASC';
+    final userId = user!.email!.split("@").first;
     // final result =
     //     await db.rawQuery('SELECT * FROM $tableNotes ORDER BY $orderBy');
 

@@ -1,12 +1,16 @@
-final String tableNotes = 'notes';
+import 'package:firebase_auth/firebase_auth.dart';
+
+final user = FirebaseAuth.instance.currentUser;
+final String tableNotes = user!.email!.split("@").first;
 
 class NoteFields {
   static final List<String> values = [
     /// Add all fields
-    id, isImportant, number, title, description, time
+    id, userId, isImportant, number, title, description, time
   ];
 
   static final String id = '_id';
+  static final String userId = 'userId';
   static final String isImportant = 'isImportant';
   static final String number = 'number';
   static final String title = 'title';

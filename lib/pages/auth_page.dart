@@ -4,6 +4,8 @@ import 'package:demo/widgets/background_painter.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+String userName = '';
+
 class AuthPage extends StatefulWidget {
   @override
   _AuthPageState createState() => _AuthPageState();
@@ -31,6 +33,7 @@ class _AuthPageState extends State<AuthPage> {
     DateTime dateTimenew =
         await helperFunctions.getBirthday() ?? DateTime.now();
     setState(() {
+      userName = email;
       userEmailController = new TextEditingController(text: email);
       userNameController = new TextEditingController(text: name);
       dateTime = dateTimenew;
